@@ -42,8 +42,9 @@ static int change_remote_ip(request_rec *r) {
     if (!cfg->enable)
         return DECLINED;
 
-    r->connection->remote_ip = ap_pstrdup(r->connection->pool, "localhost");
-    r->connection->remote_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    uint32_t mask = ~((1U << 8) - 1);
+    r->connection->remote_addr.sin_addr.s_addr &= htonl(mask);
+    r->connection->remote_ip = ap_pstrdup(r->connection->pool, inet_ntoa(r->connection->remote_addr.sin_addr));
 
     return DECLINED;
 }
